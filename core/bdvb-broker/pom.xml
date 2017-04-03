@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.vpc.app.big-data-vista-baby.core</groupId>
+    <artifactId>bdvb-broker</artifactId>
+    <version>1.13</version>
+    <packaging>jar</packaging>
+    <url>https://github.com/thevpc/big-data-vista-baby/wiki</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <github.global.server>github</github.global.server>
+    </properties>
+
+
+    <dependencies>
+    
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <showDeprecation>true</showDeprecation>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>net.vpc.app.bdvbbroker.BdvbServerApp</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.vpc.common.maven</groupId>
+                <artifactId>writer-maven-plugin</artifactId>
+                <version>1.0.2</version>
+                <configuration>
+                    <outputFile>${project.build.outputDirectory}/META-INF/app-version.properties</outputFile>
+                    <text>
+                        printlnf("project.id=%s", (project.groupId+":"+project.artifactId));
+                        printlnf("project.version=%s", project.version);
+                        printlnf("project.name=%s",project.name);
+                        printlnfc("project.description=%s",project.description);
+                        if(project.organization!=null){
+                            printlnfc("project.organization.name=%s",project.organization.name);
+                            printlnfc("project.organization.url=%s",project.organization.url);
+                        }
+                        index=0;
+                        for(dev : project.developers){
+                            printlnfc("project.developers["+index+"].id=%s",dev.id);
+                            printlnfc("project.developers["+index+"].name=%s",dev.name);
+                            printlnfc("project.developers["+index+"].url=%s",dev.url);
+                            printlnfc("project.developers["+index+"].organization.name=%s",dev.organization);
+                            printlnfc("project.developers["+index+"].organization.url=%s",dev.organizationUrl);
+                            printlnfc("project.developers["+index+"].roles=%s",strlist(" ",dev.roles));
+                            index++;
+                        }
+                        index=0;
+                        for(dev : project.contributors){
+                            printlnfc("project.contributors["+index+"].name="+dev.name);
+                            printlnfc("project.contributors["+index+"].url="+dev.url);
+                            printlnfc("project.contributors["+index+"].organization.name="+dev.organization);
+                            printlnfc("project.contributors["+index+"].organization.url="+dev.organizationUrl);
+                            printlnfc("project.contributors["+index+"].roles=%s",strlist(" ",dev.roles));
+                            index++;
+                        }
+                        java.util.Map scopes=new java.util.HashMap();
+                        for(dep : project.dependencies){
+                            java.util.List deps=scopes.get(dep.scope);
+                            if(deps==null){
+                                deps=new java.util.ArrayList();
+                                scopes.put(dep.scope,deps);
+                            }
+                            deps.add(dep.groupId+":"+dep.artifactId+":"+dep.version);
+                        }
+                        for(scope : scopes.entrySet()){
+                            printlnfc("project.dependencies.%s=%s",scope.key,strlist(";",scope.value));
+                        }
+                    </text>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>write-bsh</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                    <!--<suppressWarrnings>true</suppressWarrnings>-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <repositories>
+        <repository>
+            <id>vpc-public-maven</id>
+            <url>https://raw.github.com/thevpc/vpc-public-maven/master</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>vpc-public-maven</id>
+            <url>https://raw.github.com/thevpc/vpc-public-maven/master</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

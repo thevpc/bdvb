@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/core/bdvb-broker/bdvb-broker.iml" filepath="$PROJECT_DIR$/core/bdvb-broker/bdvb-broker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/big-data-vista-baby.iml" filepath="$PROJECT_DIR$/big-data-vista-baby.iml" />
+    </modules>
+  </component>
+</project>

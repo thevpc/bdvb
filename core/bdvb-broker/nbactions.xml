@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-site:site</actionName>
+            <displayName>site:site</displayName>
+            <goals>
+                <goal>site:site</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-javadoc:javadoc</actionName>
+            <displayName>javadoc:javadoc</displayName>
+            <goals>
+                <goal>javadoc:javadoc</goal>
+            </goals>
+        </action>
+    </actions>
