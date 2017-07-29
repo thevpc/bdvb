@@ -31,7 +31,7 @@ import com.google.gson.JsonObject;
 public interface BdvbTransportManager {
     void start(JsonObject bootConfig, BdvbBroker broker);
 
-    public void startChannelByOwner(String channelOwner);
+    void startChannelByOwner(String channelOwner);
 
     void stop();
 }

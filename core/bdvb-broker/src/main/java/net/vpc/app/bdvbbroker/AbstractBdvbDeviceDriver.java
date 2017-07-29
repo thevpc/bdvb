@@ -36,6 +36,16 @@ public abstract class AbstractBdvbDeviceDriver implements BdvbDeviceDriver {
     private BdvbBroker broker;
     private Map<String,BdvbDeviceBrokerRuntime> configs=new HashMap<String, BdvbDeviceBrokerRuntime>();
 
+    @Override
+    public String getDefaultServiceId() {
+        return getClass().getName();
+    }
+
+    @Override
+    public String getDriverId() {
+        return getClass().getName();
+    }
+
     public void install(BdvbBroker broker) {
         this.broker = broker;
     }

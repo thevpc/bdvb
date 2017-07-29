@@ -31,6 +31,7 @@ import net.vpc.app.bdvbbroker.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Created by vpc on 11/30/16.
@@ -39,7 +40,7 @@ public class BdvbServerApp {
     private static final Logger log = Logger.getLogger(DefaultBdvbBroker.class.getName());
 
     public static void main(String[] args) {
-        log.info("Bootsrapping //Big Data Vista Baby// Broker...");
+        log.info("Bootstrapping //Big Data Vista Baby// Broker...");
         Args a = new Args(args);
         if(a.containOption("--help") || a.containOption("-h")  || a.containOption("-?")){
             System.out.println("--file <JSON_FILE_PATH>");

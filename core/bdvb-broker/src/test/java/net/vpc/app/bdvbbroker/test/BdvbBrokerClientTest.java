@@ -52,7 +52,7 @@ public class BdvbBrokerClientTest {
 
         FileMock t361 = new FileMock();
         try {
-            String PREFIX = "/home/vpc/workspace/faurecia-example";
+            String PREFIX = "/home/vpc/workspace/faurecia";
             List<File> files=new ArrayList<>();
             for (String file : new String[]{
 //                    "77.154.225.95",
@@ -62,7 +62,7 @@ public class BdvbBrokerClientTest {
 //                    "92.90.17.127",
 //                    "77.154.202.167",
 //                    "92.90.20.78",
-                    "77.154.202.195"
+                    "197.28.169.139"
 
             }) {
                 files.add(new File(PREFIX +"/"+file));
@@ -78,10 +78,10 @@ public class BdvbBrokerClientTest {
 //                            new File("/data/vpc/Data/work/entities/faurecia/bigdata/resources/T361/SourceExamples/J1939 data text format.txt")
                     )
                     .setPort(38096)
-//                    .setServerAddress(InetAddress.getLocalHost())
-                    .setServerAddress(InetAddress.getByName("eniso.info"))
+                    .setServerAddress(InetAddress.getLocalHost())
+//                    .setServerAddress(InetAddress.getByName("eniso.info"))
                     .setRepeatInterval(1)
-                    .setRepeatCount(4)
+                    .setRepeatCount(1)
             ;
         } catch (UnknownHostException e) {
             e.printStackTrace();

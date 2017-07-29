@@ -35,13 +35,22 @@ public class UlbotechTracking extends SimpleBdvbDeviceDriver {
         u.addProperty("timestamp", raw.get("timestamp").getAsString());
 //        raw = raw.getAsJsonObject("raw");
         JsonObject gps = new JsonObject();
-        gps.addProperty("latitude", raw.getAsJsonObject("GPS").get("latitude").getAsString());
-        gps.addProperty("longitude", raw.getAsJsonObject("GPS").get("longitude").getAsString());
-        gps.addProperty("hdop", raw.getAsJsonObject("GPS").get("hdop").getAsString());
-        gps.addProperty("dimension", raw.getAsJsonObject("GPS").get("dimension").getAsString());
-        gps.addProperty("course", raw.getAsJsonObject("GPS").get("course").getAsString());
-        Integer speed = Utils.getJsonValueInt(raw, 0, "GPS", "speed");
-        gps.addProperty("speed", speed == null ? 0 : speed);
+        if(raw.getAsJsonObject("GPS")!=null) {
+            gps.addProperty("latitude", raw.getAsJsonObject("GPS").get("latitude").getAsDouble());
+            gps.addProperty("longitude", raw.getAsJsonObject("GPS").get("longitude").getAsDouble());
+            gps.addProperty("hdop", raw.getAsJsonObject("GPS").get("hdop").getAsDouble());
+            gps.addProperty("dimension", raw.getAsJsonObject("GPS").get("dimension").getAsInt());
+            gps.addProperty("course", raw.getAsJsonObject("GPS").get("course").getAsString());
+            Integer speed = Utils.getJsonValueInt(raw, 0, "GPS", "speed");
+            gps.addProperty("speed", speed == null ? 0 : speed);
+        }else{
+            gps.addProperty("latitude", 0);
+            gps.addProperty("longitude", 0);
+            gps.addProperty("hdop", 0);
+            gps.addProperty("dimension", 0);
+            gps.addProperty("course", 0);
+            gps.addProperty("speed", 0 );
+        }
         u.add("gps", gps);
 
         JsonObject device = new JsonObject();
@@ -54,7 +63,7 @@ public class UlbotechTracking extends SimpleBdvbDeviceDriver {
         vehicle.addProperty("engines-seconds", Utils.getJsonValueString(raw, "EGT"));
         vehicle.addProperty("battery", Utils.getJsonValueString(raw, "ADC", "Car Battery"));
         vehicle.addProperty("fuel", Utils.getJsonValueString(raw, "FUL", "value"));
-        vehicle.addProperty("mileage", Utils.getJsonValueString(raw, "FUL", "value"));
+        vehicle.addProperty("mileage", Utils.getJsonValueString(raw, "MGR"));
         JsonElement obd = Utils.getJsonValue(raw, "OBD");
         JsonArray obdArr = obd == null ? new JsonArray() : obd.getAsJsonArray();
         for (JsonElement element : obdArr) {

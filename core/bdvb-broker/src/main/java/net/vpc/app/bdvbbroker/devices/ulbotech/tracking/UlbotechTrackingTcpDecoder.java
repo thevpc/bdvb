@@ -4,7 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.vpc.app.bdvbbroker.*;
+import net.vpc.app.bdvbbroker.BdvbTcpConnection;
+import net.vpc.app.bdvbbroker.BdvbTcpDecoder;
+import net.vpc.app.bdvbbroker.DefaultBdvbPacket;
+import net.vpc.app.bdvbbroker.RichInputStream;
 import net.vpc.app.bdvbbroker.util.ByteArrayList;
 import net.vpc.app.bdvbbroker.util.Utils;
 
@@ -22,22 +25,6 @@ import java.util.Objects;
  */
 public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
     public static final String RESERVED = "Reserved";
-    private static String[] infoBehavior = {
-            "Rapid acceleration",
-            "Rough braking",
-            "Harsh course",
-            "No warmup",
-            "Long idle",
-            "Fatigue driving",
-            "Rough terrain",
-            "High RPM"
-    };
-    private static String[] infoAdcNames = {"Car Battery",
-            "Device Temperature",
-            "Inner Battery",
-            "Input voltage"};
-    private static String[] infoAdcUnits = {"(V)", "(Celsius)", "(V)", "(V)"};
-
     private static final String[] infoStatus = {
             "Power cut",
             "Moving",
@@ -71,8 +58,6 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
             RESERVED,
             "Accident",
             "Battery low"};
-
-
     private static final int MinPacketLen = 22;
     private static final int ProtocolVersion = 1;
     private static final byte txtStartChar = (byte) '*';
@@ -83,8 +68,22 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
     private static final SimpleDateFormat hHmmssddMMyy = new SimpleDateFormat(
             "HHmmssddMMyy"
     );
-
     private static final Date DEFAULT_DATE;
+    private static String[] infoBehavior = {
+            "Rapid acceleration",
+            "Rough braking",
+            "Harsh course",
+            "No warmup",
+            "Long idle",
+            "Fatigue driving",
+            "Rough terrain",
+            "High RPM"
+    };
+    private static String[] infoAdcNames = {"Car Battery",
+            "Device Temperature",
+            "Inner Battery",
+            "Input voltage"};
+    private static String[] infoAdcUnits = {"(V)", "(Celsius)", "(V)", "(V)"};
 
     static {
         try {
@@ -95,40 +94,6 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
 
     }
 
-    public void decode(BdvbTcpConnection connection) throws IOException {
-        DataDecode0(connection.in, new FrameListener() {
-            @Override
-            public void onReadFrame(JsonObject raw) {
-                JsonObject g = (JsonObject) raw;
-                DefaultBdvbPacket packet = new DefaultBdvbPacket();
-                packet.setRaw(raw);
-                packet.setDeviceDriver(connection.driverId);
-                packet.setDeviceUUID(g.getAsJsonPrimitive("deviceId").getAsString());
-                packet.setServerTime(new Date());
-                packet.setDeviceTime(Utils.parseDateOrNull(raw.get("timestamp").getAsString()));
-                packet.setDeviceAddress(connection.socket.getInetAddress().toString());
-                packet.setDeviceFullAddress(connection.socket.getRemoteSocketAddress().toString());
-                packet.setDeviceType("UlbotechT361");
-
-//                packet.setValue(uniform);
-//                ValueNode gps = ((ValueGroup) raw).getNode("GPS");
-//                if(gps!=null){
-//                    uniform.add(gps.copy());
-//                }
-//
-//                ValueNode adc = ((ValueGroup) raw).getNode("ADC");
-//                if(adc!=null){
-//                    ValueGroup adc2 = new ValueGroup("ADC");
-//                    uniform.add(adc2);
-//                }
-                connection.broker.publish(packet);
-            }
-        });
-    }
-
-//    FileStream tempFile = null;
-//    StreamWriter tempWrite = null;
-
     String[] eventInfo0 = {"None",
             "Interval upload",
             "Angle change upload",
@@ -136,8 +101,14 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
 
             "Request upload"};
 
+//    FileStream tempFile = null;
+//    StreamWriter tempWrite = null;
     String[] eventInfo1 = {"Rfid reader",
             "iBeacon"};
+
+    private static void arrayCopy(byte[] src, int srcOffset, byte[] dest, int destOffset, int count) {
+        System.arraycopy(src, srcOffset, dest, destOffset, count);
+    }
 
 
 //    private void btn_decode_Click(object sender, EventArgs e)
@@ -351,8 +322,63 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
 //        }
 //    }
 
-    public interface FrameListener {
-        void onReadFrame(JsonObject f);
+    private static int arrayIndexOf(byte[] items, int item, int from) {
+        for (int i = from; i < items.length; i++) {
+            if (items[i] == item) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static String StringFormat(String msg, Object... args) {
+        throw new RuntimeException("Unsupported StringFormat");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(parseByte("8F", 16));
+    }
+
+    public static byte parseByte(String s, int radix)
+            throws NumberFormatException {
+        int x = Integer.parseInt(s, radix);
+        if (x > 127) {
+            return (byte) (x & 0xFF);
+        }
+        return (byte) x;
+    }
+
+    public void decode(BdvbTcpConnection connection) throws IOException {
+        DataDecode0(connection.in, new FrameListener() {
+            @Override
+            public void onReadFrame(JsonObject raw) {
+                JsonObject g = (JsonObject) raw;
+                DefaultBdvbPacket packet = new DefaultBdvbPacket();
+                packet.setRaw(raw);
+                packet.setDeviceDriver(connection.driverId);
+                packet.setDeviceUUID(g.getAsJsonPrimitive("deviceId").getAsString());
+                packet.setServerTime(new Date());
+                packet.setDeviceTime(Utils.parseDateOrNull(raw.get("timestamp").getAsString()));
+                packet.setDeviceAddress(connection.socket.getInetAddress().toString());
+                packet.setDeviceFullAddress(connection.socket.getRemoteSocketAddress().toString());
+                packet.setDeviceType("UlbotechT361");
+
+//                packet.setValue(uniform);
+//                ValueNode gps = ((ValueGroup) raw).getNode("GPS");
+//                if(gps!=null){
+//                    uniform.add(gps.copy());
+//                }
+//
+//                ValueNode adc = ((ValueGroup) raw).getNode("ADC");
+//                if(adc!=null){
+//                    ValueGroup adc2 = new ValueGroup("ADC");
+//                    uniform.add(adc2);
+//                }
+                if (connection.broker != null) {
+                    connection.broker.publish(packet);
+                }
+            }
+        });
     }
 
     public List<JsonObject> DataDecode(byte[] buffer) throws IOException {
@@ -1020,7 +1046,7 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         JsonObject adcData = new JsonObject();
         for (int i = 0; i < adc.length / 2; i++) {
             if (adc[2 * i].equals(String.valueOf(i))) {
-                adcData.addProperty(i < infoAdcNames.length ? infoAdcNames[i] : ("Unknown"+i),adc[2 * i + 1]);
+                adcData.addProperty(i < infoAdcNames.length ? infoAdcNames[i] : ("Unknown" + i), adc[2 * i + 1]);
 //                adcData.add(
 //                        new ValueDatum(
 //                                i < infoAdcNames.length ? infoAdcNames[i] : "Unknown",
@@ -1244,8 +1270,8 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
     }
 
     JsonElement FulDecodeFromString(String str, int id) {
-        JsonObject o=new JsonObject();
-        o.addProperty("id",id);
+        JsonObject o = new JsonObject();
+        o.addProperty("id", id);
         o.addProperty("value", Integer.parseInt(str));
         return o;
     }
@@ -1256,8 +1282,8 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         int fuel = ReadUint32(info, 0);
 
 
-        JsonObject o=new JsonObject();
-        o.addProperty("id",id);
+        JsonObject o = new JsonObject();
+        o.addProperty("id", id);
         o.addProperty("value", fuel);
         return o;
     }
@@ -1560,8 +1586,8 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         JsonObject d = new JsonObject();
         JsonArray found = new JsonArray();
         JsonArray lost = new JsonArray();
-        d.add("Found",found);
-        d.add("Lost",lost);
+        d.add("Found", found);
+        d.add("Lost", lost);
 
         while (i < paras.length) {
             if (Objects.equals(paras[i], "1")) {
@@ -1785,7 +1811,7 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
     }
 
     JsonElement CmdDecodeFromString(String strCmd, String strResp) {
-        JsonObject o=new JsonObject();
+        JsonObject o = new JsonObject();
         o.addProperty("cmd", strCmd);
         o.addProperty("resp", strResp);
         return o;
@@ -2112,19 +2138,21 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         return d;
     }
 
-    JsonObject createNameValue(String n,String v){
-        JsonObject o=new JsonObject();
-        o.addProperty("name",v);
+    JsonObject createNameValue(String n, String v) {
+        JsonObject o = new JsonObject();
+        o.addProperty("name", v);
         return o;
     }
-    JsonObject createNameValue(String n,double v){
-        JsonObject o=new JsonObject();
-        o.addProperty("name",v);
+
+    JsonObject createNameValue(String n, double v) {
+        JsonObject o = new JsonObject();
+        o.addProperty("name", v);
         return o;
     }
-    JsonObject createNameValue(String n,int v){
-        JsonObject o=new JsonObject();
-        o.addProperty("name",v);
+
+    JsonObject createNameValue(String n, int v) {
+        JsonObject o = new JsonObject();
+        o.addProperty("name", v);
         return o;
     }
 
@@ -2190,9 +2218,9 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         for (int i = 1; i < value.length; i++) {
             hex += Utils.formatHex(value[i], 2) + " ";
         }
-        JsonObject o=new JsonObject();
-        o.addProperty("TYP","J1708");
-        o.addProperty("MID",hex);
+        JsonObject o = new JsonObject();
+        o.addProperty("TYP", "J1708");
+        o.addProperty("MID", hex);
         return o;//, null, null));
     }
 
@@ -2339,6 +2367,11 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         return dat[pos];
     }
 
+//    Int16 ReadInt16(byte[] dat, int pos)
+//    {
+//        return (Int16)ReadUint16(dat, pos);
+//    }
+
     byte ReadSignedByte(byte[] dat, int pos) {
         if (pos + 1 > dat.length)
             return 0;
@@ -2369,11 +2402,6 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
         return val;
     }
 
-//    Int16 ReadInt16(byte[] dat, int pos)
-//    {
-//        return (Int16)ReadUint16(dat, pos);
-//    }
-
     void OutputText(String str) {
         System.out.println("---->> " + str);
 //        tempWrite.Write(str);
@@ -2381,33 +2409,7 @@ public class UlbotechTrackingTcpDecoder implements BdvbTcpDecoder {
 //        tempFile.Flush();
     }
 
-    private static void arrayCopy(byte[] src, int srcOffset, byte[] dest, int destOffset, int count) {
-        System.arraycopy(src, srcOffset, dest, destOffset, count);
-    }
-
-    private static int arrayIndexOf(byte[] items, int item, int from) {
-        for (int i = from; i < items.length; i++) {
-            if (items[i] == item) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static String StringFormat(String msg, Object... args) {
-        throw new RuntimeException("Unsupported StringFormat");
-    }
-
-    public static void main(String[] args) {
-        System.out.println(parseByte("8F", 16));
-    }
-
-    public static byte parseByte(String s, int radix)
-            throws NumberFormatException {
-        int x = Integer.parseInt(s, radix);
-        if (x > 127) {
-            return (byte) (x & 0xFF);
-        }
-        return (byte) x;
+    public interface FrameListener {
+        void onReadFrame(JsonObject f);
     }
 }

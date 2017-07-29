@@ -41,6 +41,6 @@ public interface BdvbRepositoryClient {
 
     List<BdvbPacket> findByDeviceUUID(String ownerUUID,String deviceUUID, Date from, Date to, int maxCount, BdvbPacketTransform transform);
 
-    public Set<String> findDistinctDeviceUUID(String ownerUUID,Date from, Date to, int maxCount);
+    Set<String> findDistinctDeviceUUID(String ownerUUID,Date from, Date to, int maxCount);
 
 }
