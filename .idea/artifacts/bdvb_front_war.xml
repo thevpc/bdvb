@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="bdvb-front:war">
+    <output-path>$PROJECT_DIR$/core/bdvb-front/target</output-path>
+    <root id="archive" name="bdvb-front-1.12.war">
+      <element id="artifact" artifact-name="bdvb-front:war exploded" />
+    </root>
+  </artifact>
+</component>

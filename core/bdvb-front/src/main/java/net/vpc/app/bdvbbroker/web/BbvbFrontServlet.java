@@ -116,8 +116,8 @@ public class BbvbFrontServlet extends HttpServlet {
                     String challenge = req.getParameter("challenge");
                     String owner=null;
                     //will change this to db access soon
-                    if("david.degrange@faurecia.com".equals(user)
-                            && "cof".equals(challenge)
+                    if("admin".equals(user)
+                            && "admin".equals(challenge)
                             ) {
                         owner = "me";
                     }

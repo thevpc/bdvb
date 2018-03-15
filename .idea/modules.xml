@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/core/bdvb-broker/bdvb-broker.iml" filepath="$PROJECT_DIR$/core/bdvb-broker/bdvb-broker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/bdvb-broker-client/bdvb-broker-client.iml" filepath="$PROJECT_DIR$/core/bdvb-broker-client/bdvb-broker-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/bdvb-front/bdvb-front.iml" filepath="$PROJECT_DIR$/core/bdvb-front/bdvb-front.iml" />
       <module fileurl="file://$PROJECT_DIR$/big-data-vista-baby.iml" filepath="$PROJECT_DIR$/big-data-vista-baby.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/bdvb-broker/test.iml" filepath="$PROJECT_DIR$/core/bdvb-broker/test.iml" />
     </modules>
   </component>
 </project>
