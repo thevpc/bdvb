@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/core/bdvb-broker" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/bdvb-broker-client" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/bdvb-front" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/test" charset="UTF-8" />
   </component>
 </project>

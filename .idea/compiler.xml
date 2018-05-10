@@ -13,7 +13,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="bdvb-broker" target="1.5" />
+      <module name="bdvb-broker" target="1.8" />
       <module name="bdvb-broker-client" target="1.8" />
       <module name="bdvb-front" target="1.8" />
       <module name="big-data-vista-baby" target="1.5" />

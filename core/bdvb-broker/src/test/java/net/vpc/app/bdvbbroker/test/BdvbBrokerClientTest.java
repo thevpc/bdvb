@@ -81,7 +81,7 @@ public class BdvbBrokerClientTest {
                     .setServerAddress(InetAddress.getLocalHost())
 //                    .setServerAddress(InetAddress.getByName("eniso.info"))
                     .setRepeatInterval(1)
-                    .setRepeatCount(1)
+                    .setRepeatCount(50)
             ;
         } catch (UnknownHostException e) {
             e.printStackTrace();
